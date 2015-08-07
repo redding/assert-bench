@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    assert (2.15.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  assert (= 2.15.0)
