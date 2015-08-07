@@ -44,19 +44,19 @@ class AssertBenchCase
       { :version => data[:version], :out => data[:cmd].run.stdout }
     end
     outs.inject(@results) do |results, data|
-      req_s = data[:out].match(/Requests\/sec\:\s+(.+)/)[1]
-      tr_s  = data[:out].match(/Transfer\/sec\:\s+(.+)/)[1]
-      @results << Result.new(data[:version], req_s, tr_s)
+      res_s = data[:out].split("\n").last.split(/\s+/)
+      @results << Result.new(data[:version], res_s[1], res_s[3], res_s[5])
     end
 
     puts
   end
 
-  Result = Struct.new(:version, :reqs_s, :trans_s)
+  Result = Struct.new(:version, :real_s, :user_s, :sys_s)
 
 end
 
 CASES = [
+  { :name => '01_basic',  :desc => "Suite of 2500 tests producing 3 passing results per test" },
 ]
 
 begin
