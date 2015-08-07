@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# $ bundle exec bench_all
+
+require 'scmd'
+
+class AssertBenchCase
+
+  ROOT = File.dirname(__FILE__)
+  CMD  = "bundle exec #{ROOT}/bench"
+
+  def initialize(case_data)
+    @name = case_data[:name]
+    @desc = case_data[:desc]
+
+    @deas_dirs    = Dir.glob("#{@name}/deas-*").reverse
+    @sinatra_dirs = Dir.glob("#{@name}/sinatra-*").reverse
+
+    @results = []
+  end
+
+  def to_md
+    table = @results.map do |r|
+      "| #{r.version.rjust(13)} | #{r.reqs_s.rjust(12)} | #{r.trans_s.rjust(12)} |\n"
+    end.join
+
+    "### #{@name}\n\n"\
+    "#{@desc}\n\n"\
+    "|    Version    | Requests/sec | Transfer/sec |\n"\
+    "| ------------- | ------------ | ------------ |\n"\
+    "#{table}\n"
+  end
+
+  def run
+    puts @name
+
+    dirs = @deas_dirs + @sinatra_dirs
+    cmds = dirs.map do |d|
+      { :version => d.split('/').last, :cmd => Scmd.new("#{CMD} #{d}") }
+    end
+    outs = cmds.map do |data|
+      puts data[:cmd].to_s
+      { :version => data[:version], :out => data[:cmd].run.stdout }
+    end
+    outs.inject(@results) do |results, data|
+      req_s = data[:out].match(/Requests\/sec\:\s+(.+)/)[1]
+      tr_s  = data[:out].match(/Transfer\/sec\:\s+(.+)/)[1]
+      @results << Result.new(data[:version], req_s, tr_s)
+    end
+
+    puts
+  end
+
+  Result = Struct.new(:version, :reqs_s, :trans_s)
+
+end
+
+CASES = [
+]
+
+begin
+  folder = ARGV.first.to_s.gsub('/', '')
+  cases = folder.empty? ? CASES : CASES.select{ |c| c[:name] == folder }
+  puts cases.map{ |c| AssertBenchCase.new(c).tap(&:run).to_md }.join
+rescue StandardError => exception
+  $stderr.puts "#{exception.class}: #{exception.message}"
+  $stderr.puts exception.backtrace.join("\n")
+  exit(1)
+end
+exit(0)
