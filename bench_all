@@ -56,7 +56,8 @@ class AssertBenchCase
 end
 
 CASES = [
-  { :name => '01_basic',  :desc => "Suite of 2500 tests producing 3 passing results per test" },
+  { :name => '01_basic',  :desc => "Suite of 1000 tests producing 3 passing results per test" },
+  { :name => '02_double', :desc => "Suite of 2000 tests producing 6 passing results per test" },
 ]
 
 begin
