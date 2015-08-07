@@ -14,9 +14,6 @@ class AssertBenchRunner
     if !@folder_path.exist?
       raise ArgumentError, "no #{@folder.inspect} folder"
     end
-    if !@folder_path.join('config.ru').exist?
-      raise ArgumentError, "no #{@folder.inspect} config.ru"
-    end
 
     @gemfile_path = @folder_path.join('Gemfile')
     if !@gemfile_path.exist?
@@ -43,10 +40,10 @@ class AssertBenchRunner
 
   def bench_cmd_str
     "cd #{@folder_path} &&"\
-    " BUNDLE_GEMFILE=#{@gemfile_path}"\
-    " bundle exec --verbose assert"\
+    " (BUNDLE_GEMFILE=#{@gemfile_path}"\
+    " time bundle exec --verbose assert"\
     " --no-pp-objects --no-capture-output --no-halt-on-fail"\
-    " --no-profile --no-verbose --no-list"
+    " --no-profile --no-verbose --no-list) &> #{@results_path}"
   end
 
   def results_cmd_str

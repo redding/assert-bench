@@ -12,28 +12,30 @@ class AssertBenchCase
     @name = case_data[:name]
     @desc = case_data[:desc]
 
-    @deas_dirs    = Dir.glob("#{@name}/deas-*").reverse
-    @sinatra_dirs = Dir.glob("#{@name}/sinatra-*").reverse
+    @assert_dirs = Dir.glob("#{@name}/assert-*").reverse
 
     @results = []
   end
 
   def to_md
     table = @results.map do |r|
-      "| #{r.version.rjust(13)} | #{r.reqs_s.rjust(12)} | #{r.trans_s.rjust(12)} |\n"
+      "| #{r.version.rjust(13)} "\
+      "| #{r.real_s.rjust(10)} "\
+      "| #{r.user_s.rjust(10)} "\
+      "| #{r.sys_s.rjust(10)} |\n"
     end.join
 
     "### #{@name}\n\n"\
     "#{@desc}\n\n"\
-    "|    Version    | Requests/sec | Transfer/sec |\n"\
-    "| ------------- | ------------ | ------------ |\n"\
+    "|    Version    | Real       | User       | Sys        |\n"\
+    "| ------------- | ---------- | ---------- | ---------- |\n"\
     "#{table}\n"
   end
 
   def run
     puts @name
 
-    dirs = @deas_dirs + @sinatra_dirs
+    dirs = @assert_dirs
     cmds = dirs.map do |d|
       { :version => d.split('/').last, :cmd => Scmd.new("#{CMD} #{d}") }
     end
